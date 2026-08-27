@@ -1,0 +1,9 @@
+[project]
+name = "uv-python-with-copilot-fun"
+version = "0.1.0"
+description = "A small uv-managed Python hello-world project."
+readme = "README.md"
+requires-python = "==3.9.25"
+dependencies = [
+    "pyfiglet>=1.0.2",
+]
