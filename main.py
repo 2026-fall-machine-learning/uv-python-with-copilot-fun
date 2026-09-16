@@ -2,13 +2,7 @@ import pyfiglet
 
 
 def main() -> None:
-    print(pyfiglet.figlet_format("Hello world ! ! !"))
-    print(pyfiglet.figlet_format("does"))
-    print(pyfiglet.figlet_format("uv"))
-    print(pyfiglet.figlet_format("really"))
-    print(pyfiglet.figlet_format("really"))
-    print(pyfiglet.figlet_format("rock"))
-    print(pyfiglet.figlet_format("!? !? !?"))
+    print(pyfiglet.figlet_format("NATHANIEL R"))
 
 
 
