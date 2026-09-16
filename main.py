@@ -2,7 +2,7 @@ import pyfiglet
 
 
 def main() -> None:
-    print(pyfiglet.figlet_format("NATHANIEL"))
+    print(pyfiglet.figlet_format("NATHANIEL R"))
 
 
 
