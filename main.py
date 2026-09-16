@@ -6,10 +6,10 @@ def main() -> None:
     print(pyfiglet.figlet_format("do_s"))
     print(pyfiglet.figlet_format("u_"))
     print(pyfiglet.figlet_format("_eally"))
-    print(pyfiglet.figlet_format("r_ally"))
-    print(pyfiglet.figlet_format("real_y"))
-    print(pyfiglet.figlet_format("r_ck"))
-    print(pyfiglet.figlet_format("!? !_ !?"))
+    print(pyfiglet.figlet_format("really"))
+    print(pyfiglet.figlet_format("really"))
+    print(pyfiglet.figlet_format("rock"))
+    print(pyfiglet.figlet_format("!? !? !?"))
 
 
 
