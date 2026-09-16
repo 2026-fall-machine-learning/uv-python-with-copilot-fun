@@ -2,7 +2,7 @@ import pyfiglet
 
 
 def main() -> None:
-    print(pyfiglet.figlet_format("TOM"))
+    print(pyfiglet.figlet_format("TOM S"))
 
 
 
