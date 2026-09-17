@@ -6,4 +6,7 @@ readme = "README.md"
 requires-python = "==3.9.25"
 dependencies = [
     "pyfiglet>=1.0.2",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "matplotlib>=3.7.0",
 ]
