@@ -79,8 +79,16 @@ Check formatting without changing files:
 uv format --check
 ```
 
-Check that multiline Python constructs include required trailing commas:
+Require a trailing comma on every multiline call, collection, or def:
 
 ```powershell
 uvx ruff check --select COM812
+```
+
+Add missing trailing commas automatically (run `uv format` again afterward,
+since adding a comma can change how a line wraps):
+
+```powershell
+uvx ruff check --select COM812 --fix
+uv format
 ```

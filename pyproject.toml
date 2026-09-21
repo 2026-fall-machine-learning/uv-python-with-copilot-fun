@@ -18,3 +18,11 @@ line-length = 88
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
+
+[tool.ruff.lint]
+# Require a trailing comma on every multiline call/collection/def. This rule
+# conflicts with the formatter's own judgment about when to collapse a call
+# back onto one line, so the standard workflow is: run `uv format` first (to
+# settle line breaks), then `ruff check --fix` (to add the missing commas),
+# then `uv format` again (idempotent from then on).
+select = ["COM812"]

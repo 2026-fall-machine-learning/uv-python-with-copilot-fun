@@ -1,0 +1,6 @@
+{
+    // Loosen Pylance from "strict" (which reports pandas/numpy/matplotlib's
+    // partially-typed stubs as reportUnknownMemberType/reportUnknownVariableType/
+    // reportUnknownArgumentType errors) back to its "basic" default for this project.
+    "python.analysis.typeCheckingMode": "basic"
+}
