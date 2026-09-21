@@ -64,3 +64,23 @@ To avoid activating the environment, point uv directly at its interpreter:
 ```powershell
 uv pip list --python .\.venv\Scripts\python.exe
 ```
+
+## Formatting
+
+Format the Python source with the project's Black-compatible Ruff settings:
+
+```powershell
+uv format
+```
+
+Check formatting without changing files:
+
+```powershell
+uv format --check
+```
+
+Check that multiline Python constructs include required trailing commas:
+
+```powershell
+uvx ruff check --select COM812
+```

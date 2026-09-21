@@ -10,3 +10,11 @@ dependencies = [
     "numpy>=1.24.0",
     "matplotlib>=3.7.0",
 ]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false

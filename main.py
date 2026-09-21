@@ -35,14 +35,19 @@ def plot_linear_regression(csv_path: Path = CSV_PATH) -> None:
     # Extend the fit line 100 past the min/max of ALL x values (train + test).
     x_all = df["Number"]
     line_x = np.linspace(
-        x_all.min() - EXTRAPOLATE_MARGIN, x_all.max() + EXTRAPOLATE_MARGIN, 200
+        x_all.min() - EXTRAPOLATE_MARGIN,
+        x_all.max() + EXTRAPOLATE_MARGIN,
+        200,
     )
     line_y = slope * line_x + intercept
 
     plt.scatter(x_train, y_train, color="tab:blue", label="Train")
     if len(test_df):
         plt.scatter(
-            test_df["Number"], test_df["NextNumber"], color="tab:orange", label="Test"
+            test_df["Number"],
+            test_df["NextNumber"],
+            color="tab:orange",
+            label="Test",
         )
     plt.plot(
         line_x,
