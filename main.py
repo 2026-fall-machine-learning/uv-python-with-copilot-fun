@@ -80,7 +80,9 @@ def plot_linear_regression(
         color="tab:blue",
         label="Train",
     )
-    if len(test_df):
+    if len(
+        test_df,
+    ):
         plt.scatter(
             test_df["Number"],
             test_df["NextNumber"],
