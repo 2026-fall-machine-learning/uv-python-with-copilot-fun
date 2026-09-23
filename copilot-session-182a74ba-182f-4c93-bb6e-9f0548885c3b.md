@@ -3,8 +3,8 @@
 > [!NOTE]
 > - **Session ID:** `182a74ba-182f-4c93-bb6e-9f0548885c3b`  
 > - **Started:** 9/23/2026, 3:02:12 PM  
-> - **Duration:** 33m 46s  
-> - **Exported:** 9/23/2026, 3:35:58 PM  
+> - **Duration:** 55m 51s  
+> - **Exported:** 9/23/2026, 3:58:04 PM  
 
 ---
 
@@ -1812,6 +1812,1064 @@ Implemented and verified the CSV linear-regression plotting workflow. `main.py` 
 ### ✓ Task Complete
 
 Implemented and verified the CSV linear-regression plotting workflow. `main.py` preserves the ASCII-art output, validates and loads `counting-data.csv`, fits and reports the NumPy regression, and displays the matplotlib plot. Added pandas/NumPy/matplotlib dependencies, updated `uv.lock`, documented usage in README.md, and verified with `uv sync`, compilation, diff checks, and a headless run.
+
+---
+
+<sub>33m 46s</sub>
+
+### Info
+
+Session shared successfully to:
+C:\2026-fall-ml\uv-python-with-copilot-fun\copilot-session-182a74ba-182f-4c93-bb6e-9f0548885c3b.md
+
+---
+
+<sub>46m 22s</sub>
+
+### User
+
+hey, what if we split the data into training and test data, then extended the line forward and backward 100 units, dont test this, just make changes and i will run manually, on this branch is okey dokey, this is my poor mans train test split, nothing too fancy
+
+---
+
+<sub>46m 24s</sub>
+
+### Reasoning
+
+***Planning for analysis**
+
+I’m thinking we need to establish a plan mode to inspect the current files, which might already be known, but I'll need to analyze them carefully. The user mentioned not to test or make changes yet, but creating a plan means getting approval before implementing anything. I should clarify any ambiguous points about the training/test split semantics, and I’ll extend the line backward and forward by 100 units. Plus, I need to consider updating the main plan file and SQL, while using commentary for tool calls only.*
+
+---
+
+<sub>46m 27s</sub>
+
+### Copilot
+
+I’ll inspect the current regression code and CSV shape, then I’ll define the split and extrapolation behavior precisely in the session plan without changing repository files yet.
+
+---
+
+<sub>46m 27s</sub>
+
+### `view`
+
+**view the file at C:\2026-fall-ml\uv-python-with-copilot-fun\main.py.**
+
+C:\2026-fall-ml\uv-python-with-copilot-fun\main.py
+
+<details>
+<summary>44 lines</summary>
+
+```
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import pyfiglet
+
+
+DATA_FILE = Path(__file__).with_name("counting-data.csv")
+
+
+def print_names() -> None:
+    for name in ("ARROW H", "NATHANIEL R", "MAX L", "TOM S"):
+        print(pyfiglet.figlet_format(name))
+
+
+def load_data() -> pd.DataFrame:
+    data = pd.read_csv(DATA_FILE)
+    required_columns = {"Number", "NextNumber"}
+    missing_columns = required_columns - set(data.columns)
+    if missing_columns:
+        missing = ", ".join(sorted(missing_columns))
+        raise ValueError(f"{DATA_FILE.name} is missing required column(s): {missing}")
+
+    data = data[["Number", "NextNumber"]].apply(pd.to_numeric, errors="coerce")
+    if data.isna().any().any():
+        raise ValueError("The CSV must contain only numeric values in Number and NextNumber.")
+    if len(data) < 2:
+        raise ValueError("The CSV must contain at least two numeric data rows.")
+    if data["Number"].nunique() < 2:
+        raise ValueError("The Number column must contain at least two distinct values.")
+    return data
+
+
+def plot_regression(data: pd.DataFrame) -> None:
+    x = data["Number"].to_numpy()
+    y = data["NextNumber"].to_numpy()
+    slope, intercept = np.polyfit(x, y, 1)
+    fitted_y = slope * x + intercept
+
+    print(f"Linear regression: NextNumber = {slope:.3f} * Number + {intercept:.3f}")
+
+    plt.scatter(x, y, label="Observed data")
+    order = np.argsort(x)
+    plt.plot(x[order], fitted_y[order], color="orange", label="Regression line")
+    plt.xlabel("Number")
+    plt.ylabel("NextNumber")
+    plt.title("Number vs. NextNumber")
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+
+def main() -> None:
+    print_names()
+    plot_regression(load_data())
+
+
+
+if __name__ == "__main__":
+    main()
+```
+
+</details>
+
+
+---
+
+<sub>46m 27s</sub>
+
+### `view`
+
+**view the file at C:\2026-fall-ml\uv-python-with-copilot-fun\counting-data.csv.**
+
+C:\2026-fall-ml\uv-python-with-copilot-fun\counting-data.csv
+
+<details>
+<summary>7 lines</summary>
+
+```
+Number,NextNumber
+0,1
+1,2
+3,4
+100,101
+115,116
+-10,-9
+```
+
+</details>
+
+
+---
+
+<sub>46m 27s</sub>
+
+### `view`
+
+**view the file at C:\Users\nrudser\.copilot\session-state\182a74ba-182f-4c93-bb6e-9f0548885c3b\plan.md.**
+
+C:\Users\nrudser\.copilot\session-state\182a74ba-182f-4c93-bb6e-9f0548885c3b\plan.md
+
+<details>
+<summary>37 lines</summary>
+
+```
+# Linear Regression Plot Plan
+
+## Problem
+
+Extend the small `uv`-managed Python project so `main.py` keeps displaying the
+existing ASCII-art names, then loads the existing `counting-data.csv`, fits a
+simple linear regression predicting `NextNumber` from `Number`, and opens a
+plot showing the observed data and fitted line.
+
+## Proposed approach
+
+1. Update `pyproject.toml` with the runtime dependencies needed for the
+   lightweight workflow: pandas for CSV loading, NumPy for the linear fit, and
+   matplotlib for plotting.
+2. Refactor `main.py` into small, readable steps:
+   - print the current `pyfiglet` names first;
+   - read `counting-data.csv` relative to the project/script location;
+   - validate that the expected `Number` and `NextNumber` columns are present
+     and usable as numeric data;
+   - calculate the slope/intercept with NumPy;
+   - print a concise regression equation/result;
+   - display a labeled scatter plot with the fitted regression line.
+3. Update `README.md` with the new behavior, dependencies, and the command to
+   run the demo.
+4. Synchronize dependencies with `uv`, run the program, and verify that the
+   ASCII output and regression plot path both work.
+
+## Decisions
+
+- Use the existing `counting-data.csv`; do not add a second CSV.
+- Treat `Number` as the predictor and `NextNumber` as the response.
+- Open the plot interactively rather than writing a PNG by default.
+- Use pandas + NumPy + matplotlib rather than scikit-learn for a short,
+  educational implementation.
+- Preserve the current Python 3.9.25 target and existing ASCII-art output.
+
+## Notes and considerations
+
+- Matplotlib may require a GUI backend in the execution environment; the
+  implementation should use the normal interactive `show()` behavior and
+  document that a graphical environment is expected.
+- The CSV currently has a perfect linear relationship (`NextNumber = Number +
+  1`), so the displayed fitted line should make that easy to see.
+- Error handling should report missing columns or non-numeric/insufficient data
+  explicitly instead of silently producing a misleading plot.
+```
+
+</details>
+
+
+---
+
+<sub>46m 29s</sub>
+
+### Reasoning
+
+***Requesting clarification**
+
+I need to ask for clarification before I finalize my plan based on the instructions. There are a couple of ambiguities, like whether to use a split ratio in a random or ordered fashion. I wonder if I should consider a poor man's train/test approach, perhaps using first/last? It might be best to ask one focused question. Also, I need to confirm the extension in the domain, either min-100 or max+100, based on the collected data.*
+
+---
+
+<sub>48m 57s</sub>
+
+### `ask_user`
+
+**Waiting for response**
+
+<details>
+<summary>Arguments</summary>
+
+```json
+{
+  "message": "Two behavior choices are ambiguous before I finalize the plan: how should the small dataset be split, and what should “extend 100 units” be based on?",
+  "requestedSchema": {
+    "properties": {
+      "split_method": {
+        "type": "string",
+        "title": "Train/test split",
+        "description": "Choose the simple split behavior for the existing rows.",
+        "oneOf": [
+          {
+            "const": "ordered_80_20",
+            "title": "Ordered 80/20: first 80% train, last 20% test"
+          },
+          {
+            "const": "random_80_20",
+            "title": "Random 80/20 split with a fixed seed"
+          },
+          {
+            "const": "half_and_half",
+            "title": "Ordered half train, half test"
+          }
+        ],
+        "default": "ordered_80_20"
+      },
+      "extension_range": {
+        "type": "string",
+        "title": "Line extension range",
+        "description": "Choose the x-range used for plotting the fitted line.",
+        "oneOf": [
+          {
+            "const": "all_data_bounds",
+            "title": "From min(Number)-100 to max(Number)+100"
+          },
+          {
+            "const": "training_bounds",
+            "title": "From training min(Number)-100 to training max(Number)+100"
+          }
+        ],
+        "default": "training_bounds"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+```
+User responded: split_method=ordered_80_20, extension_range=all_data_bounds
+```
+
+
+---
+
+<sub>48m 58s</sub>
+
+### Reasoning
+
+***Updating plan file**
+
+I'm thinking about updating the plan file. Since I'm in plan mode, I can’t make repository edits. I should check the SQL todos, which might be outdated or already done. Should I create new todos or just reset them? I need to figure out what queries I need, perhaps inserting new IDs. It looks like I’ll use the "apply_patch" session plan to manage this update effectively.*
+
+---
+
+<sub>49m 2s</sub>
+
+### `apply_patch`
+
+<details>
+<summary>Arguments</summary>
+
+```json
+"*** Begin Patch\n*** Update File: C:\\Users\\nrudser\\.copilot\\session-state\\182a74ba-182f-4c93-bb6e-9f0548885c3b\\plan.md\n@@\n-# Linear Regression Plot Plan\n+# Train/Test Regression Plot Plan\n@@\n-Extend the small `uv`-managed Python project so `main.py` keeps displaying the\n-existing ASCII-art names, then loads the existing `counting-data.csv`, fits a\n-simple linear regression predicting `NextNumber` from `Number`, and opens a\n-plot showing the observed data and fitted line.\n+Extend the existing regression demo so `main.py` keeps displaying the\n+ASCII-art names, splits the CSV rows into simple training and test sets, fits\n+the line on training data only, and plots the observations plus a line extended\n+100 x-axis units beyond both ends of the full dataset.\n@@\n-1. Update `pyproject.toml` with the runtime dependencies needed for the\n-   lightweight workflow: pandas for CSV loading, NumPy for the linear fit, and\n-   matplotlib for plotting.\n-2. Refactor `main.py` into small, readable steps:\n-   - print the current `pyfiglet` names first;\n-   - read `counting-data.csv` relative to the project/script location;\n-   - validate that the expected `Number` and `NextNumber` columns are present\n-     and usable as numeric data;\n-   - calculate the slope/intercept with NumPy;\n-   - print a concise regression equation/result;\n-   - display a labeled scatter plot with the fitted regression line.\n-3. Update `README.md` with the new behavior, dependencies, and the command to\n-   run the demo.\n-4. Synchronize dependencies with `uv`, run the program, and verify that the\n-   ASCII output and regression plot path both work.\n+1. Refactor `main.py` into small, readable steps:\n+   - print the current `pyfiglet` names first;\n+   - read and validate `counting-data.csv` as it does now;\n+   - split rows in their existing CSV order using an 80/20 boundary, with the\n+     first 80% for training and the remaining rows for testing;\n+   - fit the NumPy regression using training rows only;\n+   - plot training and test observations distinctly;\n+   - create regression-line x-values from `min(Number) - 100` through\n+     `max(Number) + 100`, so the line extends beyond the full dataset;\n+   - print the fitted equation and split sizes.\n+2. Update `README.md` to describe the ordered 80/20 split, training-only fit,\n+   and 100-unit line extrapolation.\n+3. Do not add dependencies or run validation commands for this change, per the\n+   request; the user will run the updated demo manually.\n@@\n-- Use the existing `counting-data.csv`; do not add a second CSV.\n+- Use the existing `counting-data.csv`; do not add a second CSV.\n - Treat `Number` as the predictor and `NextNumber` as the response.\n - Open the plot interactively rather than writing a PNG by default.\n - Use pandas + NumPy + matplotlib rather than scikit-learn for a short,\n   educational implementation.\n - Preserve the current Python 3.9.25 target and existing ASCII-art output.\n+- Use an ordered 80/20 train/test split rather than randomization, keeping the\n+  example deterministic and intentionally simple.\n+- Fit on training data only, while extending the plotted line using the full\n+  dataset's x-axis bounds plus or minus 100 units.\n@@\n-- Matplotlib may require a GUI backend in the execution environment; the\n-  implementation should use the normal interactive `show()` behavior and\n-  document that a graphical environment is expected.\n+- Matplotlib may require a GUI backend in the execution environment; retain the\n+  existing interactive `show()` behavior and document that a graphical\n+  environment is expected.\n - The CSV currently has a perfect linear relationship (`NextNumber = Number +\n   1`), so the displayed fitted line should make that easy to see.\n - Error handling should report missing columns or non-numeric/insufficient data\n   explicitly instead of silently producing a misleading plot.\n*** End Patch\n"
+```
+
+</details>
+
+```
+Modified 1 file(s): C:\Users\nrudser\.copilot\session-state\182a74ba-182f-4c93-bb6e-9f0548885c3b\plan.md
+```
+
+
+---
+
+<sub>49m 3s</sub>
+
+### `sql`
+
+**Track train test plan**
+
+<details>
+<summary>Arguments</summary>
+
+```json
+{
+  "description": "Track train test plan",
+  "query": "INSERT OR REPLACE INTO todos (id, title, description, status) VALUES\n  ('split-regression-data', 'Splitting regression data', 'Use an ordered 80/20 split of counting-data.csv, assigning the first 80% of rows to training and the remainder to testing.', 'pending'),\n  ('extend-regression-line', 'Extending regression line', 'Fit on training data only and plot the fitted line from full-data minimum Number minus 100 through full-data maximum Number plus 100.', 'pending'),\n  ('document-train-test-demo', 'Documenting train test demo', 'Update README.md to explain the ordered split, training-only fit, separate plotted points, and 100-unit extrapolation.', 'pending');"
+}
+```
+
+</details>
+
+```
+3 row(s) inserted. Last inserted row ID: 7.
+```
+
+
+---
+
+<sub>49m 37s</sub>
+
+### `exit_plan_mode`
+
+**- Extend `main.py` while preserving the ASCII-a...**
+
+<details>
+<summary>Arguments</summary>
+
+```json
+{
+  "summary": "- Extend `main.py` while preserving the ASCII-art output and existing CSV validation.\n- Use a deterministic ordered 80/20 split: first 80% of rows for training, remaining rows for testing.\n- Fit the regression on training rows only and plot training/test points distinctly.\n- Draw the fitted line from `min(Number) - 100` to `max(Number) + 100` across the full dataset bounds.\n- Update `README.md` to explain the behavior. No dependency changes or validation runs are planned, per your request.",
+  "recommendedAction": "interactive"
+}
+```
+
+</details>
+
+```
+Plan approved! Exited plan mode.
+
+You are now in autopilot mode (edits may be auto-approved). Proceed with implementing the plan now — begin doing the actual implementation work (editing files, running commands) immediately. Do NOT call task_complete or report the task as finished until you have genuinely implemented the plan and verified it. Creating or approving the plan does not count as completing the task.
+```
+
+
+---
+
+<sub>49m 39s</sub>
+
+### Reasoning
+
+***Implementing data split**
+
+I don't need to run tests for this request, but I'll update the todos while working on it. I need to calculate how to split the data robustly. With a data length of 6 rows, my maximum train size using int(len * 0.8) gives me 4, but it's tricky since I need at least 2 for training and 1 for testing. I can set split_index to a maximum of 2. If my validation length is less than 3, that might lead to issues, but I think I can manage that. I'll also plot the line and sizes in the README.*
+
+---
+
+<sub>49m 40s</sub>
+
+### Copilot
+
+The plan is approved. I’m applying the deterministic ordered split and full-range line extrapolation now, with no test or validation commands as requested.
+
+---
+
+<sub>49m 41s</sub>
+
+### `sql`
+
+**Start train test changes**
+
+<details>
+<summary>Arguments</summary>
+
+```json
+{
+  "description": "Start train test changes",
+  "query": "UPDATE todos SET status = 'in_progress', updated_at = CURRENT_TIMESTAMP WHERE id IN ('split-regression-data', 'extend-regression-line', 'document-train-test-demo');"
+}
+```
+
+</details>
+
+```
+3 row(s) updated.
+```
+
+
+---
+
+<sub>49m 44s</sub>
+
+### `apply_patch`
+
+<details>
+<summary>Arguments</summary>
+
+```json
+"*** Begin Patch\n*** Update File: C:\\2026-fall-ml\\uv-python-with-copilot-fun\\main.py\n@@\n def load_data() -> pd.DataFrame:\n@@\n     if len(data) < 2:\n         raise ValueError(\"The CSV must contain at least two numeric data rows.\")\n@@\n     return data\n \n \n def plot_regression(data: pd.DataFrame) -> None:\n-    x = data[\"Number\"].to_numpy()\n-    y = data[\"NextNumber\"].to_numpy()\n-    slope, intercept = np.polyfit(x, y, 1)\n-    fitted_y = slope * x + intercept\n+    split_index = int(len(data) * 0.8)\n+    if split_index < 2 or split_index >= len(data):\n+        raise ValueError(\"The CSV must contain enough rows for an 80/20 train/test split.\")\n+\n+    training_data = data.iloc[:split_index]\n+    test_data = data.iloc[split_index:]\n+    training_x = training_data[\"Number\"].to_numpy()\n+    training_y = training_data[\"NextNumber\"].to_numpy()\n+    slope, intercept = np.polyfit(training_x, training_y, 1)\n+\n+    line_x = np.linspace(data[\"Number\"].min() - 100, data[\"Number\"].max() + 100, 200)\n+    line_y = slope * line_x + intercept\n \n     print(f\"Linear regression: NextNumber = {slope:.3f} * Number + {intercept:.3f}\")\n+    print(f\"Training rows: {len(training_data)}; test rows: {len(test_data)}\")\n \n-    plt.scatter(x, y, label=\"Observed data\")\n-    order = np.argsort(x)\n-    plt.plot(x[order], fitted_y[order], color=\"orange\", label=\"Regression line\")\n+    plt.scatter(\n+        training_data[\"Number\"],\n+        training_data[\"NextNumber\"],\n+        label=\"Training data\",\n+    )\n+    plt.scatter(\n+        test_data[\"Number\"],\n+        test_data[\"NextNumber\"],\n+        label=\"Test data\",\n+        marker=\"x\",\n+    )\n+    plt.plot(line_x, line_y, color=\"orange\", label=\"Regression line\")\n*** Update File: C:\\2026-fall-ml\\uv-python-with-copilot-fun\\README.md\n@@\n-The program prints the ASCII-art names first, then reads `counting-data.csv`\n-with pandas, fits `NextNumber` from `Number` using NumPy, prints the fitted\n-equation, and opens an interactive matplotlib plot. Run it from a graphical\n-environment so the plot window can open.\n+The program prints the ASCII-art names first, then reads `counting-data.csv`\n+with pandas. It uses the first 80% of rows as training data and the remaining\n+20% as test data, fits `NextNumber` from `Number` using only the training rows,\n+prints the fitted equation and split sizes, and opens an interactive matplotlib\n+plot. The fitted line extends 100 `Number` units before the dataset minimum and\n+after its maximum. Run it from a graphical environment so the plot window can\n+open.\n*** End Patch\n"
+```
+
+</details>
+
+```
+Modified 2 file(s): C:\2026-fall-ml\uv-python-with-copilot-fun\main.py, C:\2026-fall-ml\uv-python-with-copilot-fun\README.md
+```
+
+
+---
+
+<sub>49m 45s</sub>
+
+### Reasoning
+
+***Marking task complete**
+
+I need to mark this task as done, even without a test. The user specifically mentioned they don't want tests right now, so I guess I should respect that. Still, I wonder if I can inspect the differences just to be sure, but maybe that isn't necessary. It seems I can proceed without validation and just go ahead and mark it as complete. Let’s get that done!*
+
+---
+
+<sub>49m 46s</sub>
+
+### `sql`
+
+**Complete train test changes**
+
+<details>
+<summary>Arguments</summary>
+
+```json
+{
+  "description": "Complete train test changes",
+  "query": "UPDATE todos SET status = 'done', updated_at = CURRENT_TIMESTAMP WHERE id IN ('split-regression-data', 'extend-regression-line', 'document-train-test-demo');"
+}
+```
+
+</details>
+
+```
+3 row(s) updated.
+```
+
+
+---
+
+<sub>49m 47s</sub>
+
+### `task` — Failed
+
+**Executing task**
+
+<details>
+<summary>Arguments</summary>
+
+```json
+{
+  "description": "Complete train test implementation",
+  "prompt": "The requested code changes are already implemented in the repository. Do not modify files or run tests. Confirm completion succinctly based on the current changes: ordered 80/20 split, training-only regression fit, train/test plot markers, line extended 100 units beyond full data bounds, and README update.",
+  "agent_type": "task",
+  "mode": "sync"
+}
+```
+
+</details>
+
+```
+"name": Required
+```
+
+
+---
+
+<sub>49m 49s</sub>
+
+### task (Completed)
+
+### `rg`
+
+**80|20|train|test|100|extrapol**
+
+"80|20|train|test|100|extrapol" in *.py
+
+<details>
+<summary>12 matches</summary>
+
+```
+.\main.py:38:        raise ValueError("The CSV must contain enough rows for an 80/20 train/test split.")
+.\main.py:40:    training_data = data.iloc[:split_index]
+.\main.py:41:    test_data = data.iloc[split_index:]
+.\main.py:42:    training_x = training_data["Number"].to_numpy()
+.\main.py:43:    training_y = training_data["NextNumber"].to_numpy()
+.\main.py:44:    slope, intercept = np.polyfit(training_x, training_y, 1)
+.\main.py:46:    line_x = np.linspace(data["Number"].min() - 100, data["Number"].max() + 100, 200)
+.\main.py:50:    print(f"Training rows: {len(training_data)}; test rows: {len(test_data)}")
+.\main.py:53:        training_data["Number"],
+.\main.py:54:        training_data["NextNumber"],
+.\main.py:58:        test_data["Number"],
+.\main.py:59:        test_data["NextNumber"],
+```
+
+</details>
+
+
+### `rg`
+
+**80|20|train|test|100|extrapol**
+
+"80|20|train|test|100|extrapol" in README*
+
+```
+.\README.md:51:with pandas. It uses the first 80% of rows as training data and the remaining
+.\README.md:52:20% as test data, fits `NextNumber` from `Number` using only the training rows,
+.\README.md:54:plot. The fitted line extends 100 `Number` units before the dataset minimum and
+```
+
+
+### `glob`
+
+****/***
+
+"**/*"
+
+<details>
+<summary>322 matches</summary>
+
+```
+[glob: 6151 path(s) under .; concrete paths]
+.venv/CACHEDIR.TAG
+.venv/Lib/site-packages/_virtualenv.pth
+.venv/Lib/site-packages/fonttools-4.60.2.dist-info/licenses/LICENSE.external
+.venv/Lib/site-packages/matplotlib/mpl-data/kpsewhich.lua
+.venv/Lib/site-packages/matplotlib/mpl-data/sample_data/embedding_in_wx3.xrc
+.venv/Lib/site-packages/matplotlib/mpl-data/sample_data/grace_hopper.jpg
+.venv/Lib/site-packages/numpy-2.0.2-cp39-cp39-win_amd64.whl
+.venv/Lib/site-packages/numpy.libs/.load-order-numpy-2.0.2
+.venv/Lib/site-packages/numpy/_core/lib/pkgconfig/numpy.pc
+.venv/Lib/site-packages/numpy/_core/tests/data/astype_copy.pkl
+.venv/Lib/site-packages/numpy/_core/tests/data/generate_umath_validation_data.cpp
+.venv/Lib/site-packages/numpy/_core/tests/data/recarray_from_file.fits
+.venv/Lib/site-packages/numpy/f2py/_backends/meson.build.template
+.venv/Lib/site-packages/numpy/f2py/tests/src/regression/AB.inc
+.venv/Lib/site-packages/numpy/f2py/tests/src/regression/f77fixedform.f95
+.venv/Lib/site-packages/numpy/ma/README.rst
+.venv/Lib/site-packages/packaging-26.3.dist-info/licenses/LICENSE.APACHE
+.venv/Lib/site-packages/packaging-26.3.dist-info/licenses/LICENSE.BSD
+.venv/Lib/site-packages/pandas.libs/.load-order-pandas-2.3.3
+.venv/Scripts/activate.csh
+.venv/Scripts/activate.fish
+.venv/Scripts/activate.nu
+.venv/Scripts/activate.ps1
+.venv/Scripts/activate.xsh
+.venv/share/man/man1/ttx.1
+uv.lock
+.venv/Lib/site-packages/matplotlib/mpl-data/sample_data/eeg.dat
+.venv/Lib/site-packages/matplotlib/mpl-data/sample_data/membrane.dat
+.venv/Lib/site-packages/numpy/f2py/setup.cfg
+.venv/Lib/site-packages/pandas/pyproject.toml
+.venv/Lib/site-packages/pytz/zoneinfo/tzdata.zi
+.venv/Lib/site-packages/tzdata/zoneinfo/tzdata.zi
+.venv/pyvenv.cfg
+pyproject.toml
+.venv/Lib/site-packages/matplotlib/backends/web_backend/all_figures.html
+.venv/Lib/site-packages/matplotlib/backends/web_backend/ipython_inline_figure.html
+.venv/Lib/site-packages/matplotlib/backends/web_backend/js/mpl.js
+.venv/Lib/site-packages/matplotlib/backends/web_backend/js/mpl_tornado.js
+.venv/Lib/site-packages/matplotlib/backends/web_backend/js/nbagg_mpl.js
+.venv/Lib/site-packages/matplotlib/backends/web_backend/single_figure.html
+.venv/Lib/site-packages/numpy.libs/libscipy_openblas64_-caad452230ae4ddb57899b8b3a33c55c.dll
+.venv/Lib/site-packages/numpy.libs/msvcp140-23ebcc0b37c8e3d074511f362feac48b.dll
+.venv/Lib/site-packages/numpy/_core/lib/npy-pkg-config/mlib.ini
+.venv/Lib/site-packages/numpy/_core/lib/npy-pkg-config/npymath.ini
+.venv/Lib/site-packages/numpy/_core/tests/examples/cython/meson.build
+.venv/Lib/site-packages/numpy/_core/tests/examples/limited_api/meson.build
+.venv/Lib/site-packages/numpy/random/_examples/cython/meson.build
+.venv/Lib/site-packages/numpy/typing/tests/data/mypy.ini
+.venv/Lib/site-packages/pandas.libs/msvcp140-a4c2229bdc2a2a630acdc095b4d86008.dll
+.venv/Scripts/activate.bat
+.venv/Scripts/deactivate.bat
+.venv/Scripts/pydoc.bat
+.venv/Lib/site-packages/numpy/_core/tests/examples/cython/checks.pyx
+.venv/Lib/site-packages/numpy/_core/tests/examples/limited_api/limited_api2.pyx
+.venv/Lib/site-packages/numpy/random/_examples/cython/extending.pyx
+.venv/Lib/site-packages/numpy/random/_examples/cython/extending_distributions.pyx
+.venv/Lib/site-packages/pyfiglet/fonts/lower.flc
+.venv/Lib/site-packages/pyfiglet/fonts/null.flc
+.venv/Lib/site-packages/pyfiglet/fonts/rot13.flc
+.venv/Lib/site-packages/pyfiglet/fonts/upper.flc
+.venv/Lib/site-packages/dateutil/zoneinfo/dateutil-zoneinfo.tar.gz
+.venv/Lib/site-packages/matplotlib/backends/web_backend/css/boilerplate.css
+.venv/Lib/site-packages/matplotlib/backends/web_backend/css/fbm.css
+.venv/Lib/site-packages/matplotlib/backends/web_backend/css/mpl.css
+.venv/Lib/site-packages/matplotlib/backends/web_backend/css/page.css
+.venv/Lib/site-packages/matplotlib/mpl-data/plot_directive/plot_directive.css
+.venv/Lib/site-packages/matplotlib/mpl-data/sample_data/goog.npz
+.venv/Lib/site-packages/matplotlib/mpl-data/sample_data/jacksboro_fault_dem.npz
+.venv/Lib/site-packages/matplotlib/mpl-data/sample_data/s1045.ima.gz
+.venv/Lib/site-packages/matplotlib/mpl-data/sample_data/topobathy.npz
+.venv/Lib/site-packages/numpy/f2py/tests/src/callback/gh25211.pyf
+.venv/Lib/site-packages/numpy/f2py/tests/src/cli/gh_22819.pyf
+.venv/Lib/site-packages/numpy/f2py/tests/src/crackfortran/gh22648.pyf
+.venv/Lib/site-packages/numpy/f2py/tests/src/string/gh25286.pyf
+.venv/Lib/site-packages/numpy/f2py/tests/src/string/gh25286_bc.pyf
+.venv/Lib/site-packages/numpy/lib/tests/data/py2-objarr.npz
+.venv/Lib/site-packages/numpy/lib/tests/data/py3-objarr.npz
+.venv/Lib/site-packages/numpy/random/tests/data/generator_pcg64_np121.pkl.gz
+.venv/Lib/site-packages/numpy/random/tests/data/generator_pcg64_np126.pkl.gz
+.venv/Lib/site-packages/numpy/random/tests/data/sfc64_np126.pkl.gz
+.venv/Lib/site-packages/matplotlib/mpl-data/sample_data/axes_grid/bivariate_normal.npy
+.venv/Lib/site-packages/numpy/lib/tests/data/py2-np0-objarr.npy
+.venv/Lib/site-packages/numpy/lib/tests/data/py2-objarr.npy
+.venv/Lib/site-packages/numpy/lib/tests/data/py3-objarr.npy
+.venv/Lib/site-packages/numpy/lib/tests/data/python3.npy
+.venv/Lib/site-packages/numpy/lib/tests/data/win64python2.npy
+.venv/Lib/site-packages/numpy/random/LICENSE.md
+.venv/Lib/site-packages/pyparsing/ai/best_practices.md
+README.md
+copilot-session-2de85f11-0b5a-4b57-b71d-8caa5fdf1ded.md
+copilot-session-182a74ba-182f-4c93-bb6e-9f0548885c3b.md
+hightlights-for-class.md
+.venv/Lib/site-packages/numpy/__init__.cython-30.pxd
+.venv/Lib/site-packages/numpy/__init__.pxd
+.venv/Lib/site-packages/numpy/random/__init__.pxd
+.venv/Lib/site-packages/numpy/random/_bounded_integers.pxd
+.venv/Lib/site-packages/numpy/random/_common.pxd
+.venv/Lib/site-packages/numpy/random/bit_generator.pxd
+.venv/Lib/site-packages/numpy/random/c_distributions.pxd
+.venv/Lib/site-packages/pandas/io/formats/templates/html.tpl
+.venv/Lib/site-packages/pandas/io/formats/templates/html_style.tpl
+.venv/Lib/site-packages/pandas/io/formats/templates/html_table.tpl
+.venv/Lib/site-packages/pandas/io/formats/templates/latex.tpl
+.venv/Lib/site-packages/pandas/io/formats/templates/latex_longtable.tpl
+.venv/Lib/site-packages/pandas/io/formats/templates/latex_table.tpl
+.venv/Lib/site-packages/pandas/io/formats/templates/string.tpl
+.venv/Lib/site-packages/pytz/zoneinfo/iso3166.tab
+.venv/Lib/site-packages/pytz/zoneinfo/zone.tab
+.venv/Lib/site-packages/pytz/zoneinfo/zone1970.tab
+.venv/Lib/site-packages/pytz/zoneinfo/zonenow.tab
+.venv/Lib/site-packages/tzdata/zoneinfo/iso3166.tab
+.venv/Lib/site-packages/tzdata/zoneinfo/zone.tab
+.venv/Lib/site-packages/tzdata/zoneinfo/zone1970.tab
+.venv/Lib/site-packages/tzdata/zoneinfo/zonenow.tab
+.venv/Scripts/f2py.exe
+.venv/Scripts/fonttools.exe
+.venv/Scripts/numpy-config.exe
+.venv/Scripts/pyfiglet.exe
+.venv/Scripts/pyftmerge.exe
+.venv/Scripts/pyftsubset.exe
+.venv/Scripts/python.exe
+.venv/Scripts/pythonw.exe
+.venv/Scripts/ttx.exe
+.venv/Lib/site-packages/PIL/py.typed
+.venv/Lib/site-packages/contourpy/py.typed
+.venv/Lib/site-packages/cycler/py.typed
+.venv/Lib/site-packages/fontTools/misc/plistlib/py.typed
+.venv/Lib/site-packages/importlib_resources/py.typed
+.venv/Lib/site-packages/kiwisolver/py.typed
+.venv/Lib/site-packages/matplotlib/mpl-data/images/back.pdf
+.venv/Lib/site-packages/matplotlib/mpl-data/images/filesave.pdf
+.venv/Lib/site-packages/matplotlib/mpl-data/images/forward.pdf
+.venv/Lib/site-packages/matplotlib/mpl-data/images/hand.pdf
+.venv/Lib/site-packages/matplotlib/mpl-data/images/help.pdf
+.venv/Lib/site-packages/matplotlib/mpl-data/images/home.pdf
+.venv/Lib/site-packages/matplotlib/mpl-data/images/matplotlib.pdf
+.venv/Lib/site-packages/matplotlib/mpl-data/images/move.pdf
+.venv/Lib/site-packages/matplotlib/mpl-data/images/qt4_editor_options.pdf
+.venv/Lib/site-packages/matplotlib/mpl-data/images/subplots.pdf
+.venv/Lib/site-packages/matplotlib/mpl-data/images/zoom_to_rect.pdf
+.venv/Lib/site-packages/matplotlib/py.typed
+.venv/Lib/site-packages/numpy/py.typed
+.venv/Lib/site-packages/packaging/py.typed
+.venv/Lib/site-packages/pyfiglet/py.typed
+.venv/Lib/site-packages/pyparsing/py.typed
+.venv/Lib/site-packages/matplotlib/mpl-data/images/back-symbolic.svg
+.venv/Lib/site-packages/matplotlib/mpl-data/images/back.svg
+.venv/Lib/site-packages/matplotlib/mpl-data/images/filesave-symbolic.svg
+.venv/Lib/site-packages/matplotlib/mpl-data/images/filesave.svg
+.venv/Lib/site-packages/matplotlib/mpl-data/images/forward-symbolic.svg
+.venv/Lib/site-packages/matplotlib/mpl-data/images/forward.svg
+.venv/Lib/site-packages/matplotlib/mpl-data/images/hand.svg
+.venv/Lib/site-packages/matplotlib/mpl-data/images/help-symbolic.svg
+.venv/Lib/site-packages/matplotlib/mpl-data/images/help.svg
+.venv/Lib/site-packages/matplotlib/mpl-data/images/home-symbolic.svg
+.venv/Lib/site-packages/matplotlib/mpl-data/images/home.svg
+.venv/Lib/site-packages/matplotlib/mpl-data/images/matplotlib.svg
+.venv/Lib/site-packages/matplotlib/mpl-data/images/move-symbolic.svg
+.venv/Lib/site-packages/matplotlib/mpl-data/images/move.svg
+.venv/Lib/site-packages/matplotlib/mpl-data/images/qt4_editor_options.svg
+.venv/Lib/site-packages/matplotlib/mpl-data/images/subplots-symbolic.svg
+.venv/Lib/site-packages/matplotlib/mpl-data/images/subplots.svg
+.venv/Lib/site-packages/matplotlib/mpl-data/images/zoom_to_rect-symbolic.svg
+.venv/Lib/site-packages/matplotlib/mpl-data/images/zoom_to_rect.svg
+.venv/Lib/site-packages/numpy/f2py/tests/src/block_docstring/foo.f
+.venv/Lib/site-packages/numpy/f2py/tests/src/callback/foo.f
+.venv/Lib/site-packages/numpy/f2py/tests/src/callback/gh25211.f
+.venv/Lib/site-packages/numpy/f2py/tests/src/cli/hi77.f
+.venv/Lib/site-packages/numpy/f2py/tests/src/common/block.f
+.venv/Lib/site-packages/numpy/f2py/tests/src/crackfortran/data_common.f
+.venv/Lib/site-packages/numpy/f2py/tests/src/crackfortran/data_multiplier.f
+.venv/Lib/site-packages/numpy/f2py/tests/src/crackfortran/data_with_comments.f
+.venv/Lib/site-packages/numpy/f2py/tests/src/crackfortran/gh15035.f
+.venv/Lib/site-packages/numpy/f2py/tests/src/crackfortran/gh17859.f
+.venv/Lib/site-packages/numpy/f2py/tests/src/crackfortran/gh23533.f
+.venv/Lib/site-packages/numpy/f2py/tests/src/mixed/foo.f
+.venv/Lib/site-packages/numpy/f2py/tests/src/quoted_character/foo.f
+.venv/Lib/site-packages/numpy/f2py/tests/src/regression/f77comments.f
+.venv/Lib/site-packages/numpy/f2py/tests/src/return_character/foo77.f
+.venv/Lib/site-packages/numpy/f2py/tests/src/return_complex/foo77.f
+.venv/Lib/site-packages/numpy/f2py/tests/src/return_integer/foo77.f
+.venv/Lib/site-packages/numpy/f2py/tests/src/return_logical/foo77.f
+.venv/Lib/site-packages/numpy/f2py/tests/src/return_real/foo77.f
+.venv/Lib/site-packages/numpy/f2py/tests/src/string/gh24008.f
+.venv/Lib/site-packages/numpy/f2py/tests/src/string/string.f
+.venv/Lib/site-packages/pyfiglet/fonts/ascii9.tlf
+.venv/Lib/site-packages/pyfiglet/fonts/ascii12.tlf
+.venv/Lib/site-packages/pyfiglet/fonts/bigascii9.tlf
+.venv/Lib/site-packages/pyfiglet/fonts/bigascii12.tlf
+.venv/Lib/site-packages/pyfiglet/fonts/bigmono9.tlf
+.venv/Lib/site-packages/pyfiglet/fonts/bigmono12.tlf
+.venv/Lib/site-packages/pyfiglet/fonts/circle.tlf
+.venv/Lib/site-packages/pyfiglet/fonts/emboss.tlf
+.venv/Lib/site-packages/pyfiglet/fonts/emboss2.tlf
+.venv/Lib/site-packages/pyfiglet/fonts/future.tlf
+.venv/Lib/site-packages/pyfiglet/fonts/letter.tlf
+.venv/Lib/site-packages/pyfiglet/fonts/mono9.tlf
+.venv/Lib/site-packages/pyfiglet/fonts/mono12.tlf
+.venv/Lib/site-packages/pyfiglet/fonts/pagga.tlf
+.venv/Lib/site-packages/pyfiglet/fonts/smascii9.tlf
+.venv/Lib/site-packages/pyfiglet/fonts/smascii12.tlf
+.venv/Lib/site-packages/pyfiglet/fonts/smblock.tlf
+.venv/Lib/site-packages/pyfiglet/fonts/smbraille.tlf
+.venv/Lib/site-packages/pyfiglet/fonts/smmono9.tlf
+.venv/Lib/site-packages/pyfiglet/fonts/smmono12.tlf
+.venv/Lib/site-packages/pyfiglet/fonts/wideterm.tlf
+.venv/Lib/site-packages/cycler-0.12.1.dist-info/top_level.txt
+.venv/Lib/site-packages/fontTools/ttLib/tables/table_API_readme.txt
+.venv/Lib/site-packages/fonttools-4.60.2.dist-info/entry_points.txt
+.venv/Lib/site-packages/fonttools-4.60.2.dist-info/top_level.txt
+.venv/Lib/site-packages/importlib_resources-6.5.2.dist-info/top_level.txt
+.venv/Lib/site-packages/kiwisolver-1.4.7.dist-info/top_level.txt
+.venv/Lib/site-packages/matplotlib/mpl-data/fonts/pdfcorefonts/readme.txt
+.venv/Lib/site-packages/matplotlib/mpl-data/images/back.png
+.venv/Lib/site-packages/matplotlib/mpl-data/images/back_large.png
+.venv/Lib/site-packages/matplotlib/mpl-data/images/filesave.png
+.venv/Lib/site-packages/matplotlib/mpl-data/images/filesave_large.png
+.venv/Lib/site-packages/matplotlib/mpl-data/images/forward.png
+.venv/Lib/site-packages/matplotlib/mpl-data/images/forward_large.png
+.venv/Lib/site-packages/matplotlib/mpl-data/images/hand.png
+.venv/Lib/site-packages/matplotlib/mpl-data/images/help.png
+.venv/Lib/site-packages/matplotlib/mpl-data/images/help_large.png
+.venv/Lib/site-packages/matplotlib/mpl-data/images/home.png
+.venv/Lib/site-packages/matplotlib/mpl-data/images/home_large.png
+.venv/Lib/site-packages/matplotlib/mpl-data/images/matplotlib.png
+.venv/Lib/site-packages/matplotlib/mpl-data/images/matplotlib_large.png
+.venv/Lib/site-packages/matplotlib/mpl-data/images/move.png
+.venv/Lib/site-packages/matplotlib/mpl-data/images/move_large.png
+.venv/Lib/site-packages/matplotlib/mpl-data/images/qt4_editor_options.png
+.venv/Lib/site-packages/matplotlib/mpl-data/images/qt4_editor_options_large.png
+.venv/Lib/site-packages/matplotlib/mpl-data/images/subplots.png
+.venv/Lib/site-packages/matplotlib/mpl-data/images/subplots_large.png
+.venv/Lib/site-packages/matplotlib/mpl-data/images/zoom_to_rect.png
+.venv/Lib/site-packages/matplotlib/mpl-data/images/zoom_to_rect_large.png
+.venv/Lib/site-packages/matplotlib/mpl-data/sample_data/Minduka_Present_Blue_Pack.png
+.venv/Lib/site-packages/matplotlib/mpl-data/sample_data/README.txt
+.venv/Lib/site-packages/matplotlib/mpl-data/sample_data/logo2.png
+.venv/Lib/site-packages/numpy-2.0.2.dist-info/LICENSE.txt
+.venv/Lib/site-packages/numpy-2.0.2.dist-info/entry_points.txt
+.venv/Lib/site-packages/numpy/_core/include/numpy/random/LICENSE.txt
+.venv/Lib/site-packages/numpy/_core/tests/data/umath-validation-set-README.txt
+.venv/Lib/site-packages/numpy/ma/API_CHANGES.txt
+.venv/Lib/site-packages/pandas-2.3.3.dist-info/entry_points.txt
+.venv/Lib/site-packages/pillow-11.3.0.dist-info/top_level.txt
+.venv/Lib/site-packages/pyfiglet-1.0.4.dist-info/entry_points.txt
+.venv/Lib/site-packages/pyfiglet-1.0.4.dist-info/top_level.txt
+.venv/Lib/site-packages/python_dateutil-2.9.0.post0.dist-info/top_level.txt
+.venv/Lib/site-packages/pytz-2026.3.post1.dist-info/LICENSE.txt
+.venv/Lib/site-packages/pytz-2026.3.post1.dist-info/top_level.txt
+.venv/Lib/site-packages/six-1.17.0.dist-info/top_level.txt
+.venv/Lib/site-packages/tzdata-2026.4.dist-info/top_level.txt
+.venv/Lib/site-packages/zipp-3.23.1.dist-info/top_level.txt
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/Solarize_Light2.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/_classic_test_patch.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/_mpl-gallery-nogrid.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/_mpl-gallery.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/bmh.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/classic.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/dark_background.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/fast.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/fivethirtyeight.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/ggplot.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/grayscale.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/seaborn-v0_8-bright.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/seaborn-v0_8-colorblind.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/seaborn-v0_8-dark-palette.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/seaborn-v0_8-dark.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/seaborn-v0_8-darkgrid.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/seaborn-v0_8-deep.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/seaborn-v0_8-muted.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/seaborn-v0_8-notebook.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/seaborn-v0_8-paper.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/seaborn-v0_8-pastel.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/seaborn-v0_8-poster.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/seaborn-v0_8-talk.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/seaborn-v0_8-ticks.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/seaborn-v0_8-white.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/seaborn-v0_8-whitegrid.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/seaborn-v0_8.mplstyle
+.venv/Lib/site-packages/matplotlib/mpl-data/stylelib/tableau-colorblind10.mplstyle
+.venv/Lib/site-packages/numpy/_core/include/numpy/__multiarray_api.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/__ufunc_api.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/_neighborhood_iterator_imp.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/_numpyconfig.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/_public_dtype_api_table.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/arrayobject.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/arrayscalars.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/dtype_api.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/halffloat.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/ndarrayobject.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/ndarraytypes.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/npy_1_7_deprecated_api.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/npy_2_compat.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/npy_2_complexcompat.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/npy_3kcompat.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/npy_common.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/npy_cpu.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/npy_endian.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/npy_math.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/npy_no_deprecated_api.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/npy_os.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/numpyconfig.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/random/bitgen.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/random/distributions.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/random/libdivide.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/ufuncobject.h
+.venv/Lib/site-packages/numpy/_core/include/numpy/utils.h
+.venv/Lib/site-packages/numpy/f2py/src/fortranobject.h
+.venv/Lib/site-packages/matplotlib/mpl-data/sample_data/Stocks.csv
+.venv/Lib/site-packages/matplotlib/mpl-data/sample_data/data_x_x2_x3.csv
+.venv/Lib/site-packages/matplotlib/mpl-data/sample_data/msft.csv
+.venv/Lib/site-packages/numpy/_core/tests/data/umath-validation-set-arccos.csv
+.venv/Lib/site-packages/numpy/_core/tests/data/umath-validation-set-arccosh.csv
+.venv/Lib/site-packages/numpy/_core/tests/data/umath-validation-set-arcsin.csv
+.venv/Lib/site-packages/numpy/_core/tests/data/umath-validation-set-arcsinh.csv
+.venv/Lib/site-packages/numpy/_core/tests/data/umath-validation-set-arctan.csv
+.venv/Lib/site-packages/numpy/_core/tests/data/umath-validation-set-arctanh.csv
+.venv/Lib/site-packages/numpy/_core/tests/data/umath-validation-set-cbrt.csv
+.venv/Lib/site-packages/numpy/_core/tests/data/umath-validation-set-cos.csv
+[omitted 5832 path(s); see original output for full results]
+[extensions: .py=2756, [no extension]=1314, .flf=550, .pyc=510, .pyi=323, .pyd=88, .lib=66, .afm=60]
+```
+
+</details>
+
+
+### `view`
+
+**view the file at C:\2026-fall-ml\uv-python-with-copilot-fun\main.py.**
+
+C:\2026-fall-ml\uv-python-with-copilot-fun\main.py
+
+<details>
+<summary>60 lines</summary>
+
+```
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import pyfiglet
+
+
+DATA_FILE = Path(__file__).with_name("counting-data.csv")
+
+
+def print_names() -> None:
+    for name in ("ARROW H", "NATHANIEL R", "MAX L", "TOM S"):
+        print(pyfiglet.figlet_format(name))
+
+
+def load_data() -> pd.DataFrame:
+    data = pd.read_csv(DATA_FILE)
+    required_columns = {"Number", "NextNumber"}
+    missing_columns = required_columns - set(data.columns)
+    if missing_columns:
+        missing = ", ".join(sorted(missing_columns))
+        raise ValueError(f"{DATA_FILE.name} is missing required column(s): {missing}")
+
+    data = data[["Number", "NextNumber"]].apply(pd.to_numeric, errors="coerce")
+    if data.isna().any().any():
+        raise ValueError("The CSV must contain only numeric values in Number and NextNumber.")
+    if len(data) < 2:
+        raise ValueError("The CSV must contain at least two numeric data rows.")
+    if data["Number"].nunique() < 2:
+        raise ValueError("The Number column must contain at least two distinct values.")
+    return data
+
+
+def plot_regression(data: pd.DataFrame) -> None:
+    split_index = int(len(data) * 0.8)
+    if split_index < 2 or split_index >= len(data):
+        raise ValueError("The CSV must contain enough rows for an 80/20 train/test split.")
+
+    training_data = data.iloc[:split_index]
+    test_data = data.iloc[split_index:]
+    training_x = training_data["Number"].to_numpy()
+    training_y = training_data["NextNumber"].to_numpy()
+    slope, intercept = np.polyfit(training_x, training_y, 1)
+
+    line_x = np.linspace(data["Number"].min() - 100, data["Number"].max() + 100, 200)
+    line_y = slope * line_x + intercept
+
+    print(f"Linear regression: NextNumber = {slope:.3f} * Number + {intercept:.3f}")
+    print(f"Training rows: {len(training_data)}; test rows: {len(test_data)}")
+
+    plt.scatter(
+        training_data["Number"],
+        training_data["NextNumber"],
+        label="Training data",
+    )
+    plt.scatter(
+        test_data["Number"],
+        test_data["NextNumber"],
+        label="Test data",
+        marker="x",
+    )
+    plt.plot(line_x, line_y, color="orange", label="Regression line")
+    plt.xlabel("Number")
+    plt.ylabel("NextNumber")
+    plt.title("Number vs. NextNumber")
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+
+def main() -> None:
+    print_names()
+    plot_regression(load_data())
+
+
+
+if __name__ == "__main__":
+    main()
+```
+
+</details>
+
+
+### `view`
+
+**view the file at C:\2026-fall-ml\uv-python-with-copilot-fun\README.md.**
+
+C:\2026-fall-ml\uv-python-with-copilot-fun\README.md (lines 45-60)
+
+<details>
+<summary>12 lines</summary>
+
+````
+
+```powershell
+uv run main.py
+```
+
+The program prints the ASCII-art names first, then reads `counting-data.csv`
+with pandas. It uses the first 80% of rows as training data and the remaining
+20% as test data, fits `NextNumber` from `Number` using only the training rows,
+prints the fitted equation and split sizes, and opens an interactive matplotlib
+plot. The fitted line extends 100 `Number` units before the dataset minimum and
+after its maximum. Run it from a graphical environment so the plot window can
+open.
+
+Inspect the available Python versions again and compare the result with the
+earlier command:
+````
+
+</details>
+
+
+### Copilot
+
+The ordered 80/20 split, training-only fit, train/test markers, 100-unit extrapolation, and README update are present.
+
+
+---
+
+<sub>49m 58s</sub>
+
+### task (Completed)
+
+### Copilot
+
+Implementation is complete and finished.
+
+
+---
+
+<sub>50m 3s</sub>
+
+### Copilot
+
+Implemented on the current branch:
+
+- Added an ordered 80/20 split: first 80% training, remaining 20% test.
+- Fits the regression using training data only.
+- Plots training points and test points with distinct markers.
+- Extends the regression line 100 units before the full dataset minimum and after its maximum.
+- Prints the regression equation and train/test row counts.
+- Updated `README.md` with the new behavior.
+
+No tests or validation commands were run, as requested.
+
+---
+
+<sub>50m 6s</sub>
+
+### `task_complete`
+
+**Implemented the requested train/test regression changes o...**
+
+<details>
+<summary>Arguments</summary>
+
+```json
+{
+  "summary": "Implemented the requested train/test regression changes on the current branch: ordered 80/20 split, training-only regression fit, distinct training/test plot markers, regression-line extrapolation 100 units beyond full-data bounds, and README documentation. No tests or validation commands were run, per request."
+}
+```
+
+</details>
+
+```
+Implemented the requested train/test regression changes on the current branch: ordered 80/20 split, training-only regression fit, distinct training/test plot markers, regression-line extrapolation 100 units beyond full-data bounds, and README documentation. No tests or validation commands were run, per request.
+```
+
+
+---
+
+<sub>50m 6s</sub>
+
+### ✓ Task Complete
+
+Implemented the requested train/test regression changes on the current branch: ordered 80/20 split, training-only regression fit, distinct training/test plot markers, regression-line extrapolation 100 units beyond full-data bounds, and README documentation. No tests or validation commands were run, per request.
 
 ---
 

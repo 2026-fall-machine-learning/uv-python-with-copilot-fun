@@ -48,9 +48,12 @@ uv run main.py
 ```
 
 The program prints the ASCII-art names first, then reads `counting-data.csv`
-with pandas, fits `NextNumber` from `Number` using NumPy, prints the fitted
-equation, and opens an interactive matplotlib plot. Run it from a graphical
-environment so the plot window can open.
+with pandas. It uses the first 80% of rows as training data and the remaining
+20% as test data, fits `NextNumber` from `Number` using only the training rows,
+prints the fitted equation and split sizes, and opens an interactive matplotlib
+plot. The fitted line extends 100 `Number` units before the dataset minimum and
+after its maximum. Run it from a graphical environment so the plot window can
+open.
 
 Inspect the available Python versions again and compare the result with the
 earlier command:

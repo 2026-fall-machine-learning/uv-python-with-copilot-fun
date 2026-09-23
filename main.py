@@ -33,16 +33,34 @@ def load_data() -> pd.DataFrame:
 
 
 def plot_regression(data: pd.DataFrame) -> None:
-    x = data["Number"].to_numpy()
-    y = data["NextNumber"].to_numpy()
-    slope, intercept = np.polyfit(x, y, 1)
-    fitted_y = slope * x + intercept
+    split_index = int(len(data) * 0.8)
+    if split_index < 2 or split_index >= len(data):
+        raise ValueError("The CSV must contain enough rows for an 80/20 train/test split.")
+
+    training_data = data.iloc[:split_index]
+    test_data = data.iloc[split_index:]
+    training_x = training_data["Number"].to_numpy()
+    training_y = training_data["NextNumber"].to_numpy()
+    slope, intercept = np.polyfit(training_x, training_y, 1)
+
+    line_x = np.linspace(data["Number"].min() - 100, data["Number"].max() + 100, 200)
+    line_y = slope * line_x + intercept
 
     print(f"Linear regression: NextNumber = {slope:.3f} * Number + {intercept:.3f}")
+    print(f"Training rows: {len(training_data)}; test rows: {len(test_data)}")
 
-    plt.scatter(x, y, label="Observed data")
-    order = np.argsort(x)
-    plt.plot(x[order], fitted_y[order], color="orange", label="Regression line")
+    plt.scatter(
+        training_data["Number"],
+        training_data["NextNumber"],
+        label="Training data",
+    )
+    plt.scatter(
+        test_data["Number"],
+        test_data["NextNumber"],
+        label="Test data",
+        marker="x",
+    )
+    plt.plot(line_x, line_y, color="orange", label="Regression line")
     plt.xlabel("Number")
     plt.ylabel("NextNumber")
     plt.title("Number vs. NextNumber")
