@@ -5,5 +5,8 @@ description = "A small uv-managed Python hello-world project."
 readme = "README.md"
 requires-python = "==3.9.25"
 dependencies = [
+    "matplotlib>=3.5",
+    "numpy>=1.21",
+    "pandas>=1.3",
     "pyfiglet>=1.0.2",
 ]
