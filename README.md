@@ -1,7 +1,10 @@
 # uv Python With Copilot Fun
 
 A tiny Python project managed with [uv](https://docs.astral.sh/uv/) that prints
-an ASCII-art greeting using [`pyfiglet`](https://pypi.org/project/pyfiglet/).
+an ASCII-art greeting using [`pyfiglet`](https://pypi.org/project/pyfiglet/)
+and plots a linear regression for `counting-data.csv` using
+[`matplotlib`](https://matplotlib.org/). The regression is calculated directly
+with least squares, without a machine-learning library.
 
 ## Getting started after cloning
 
@@ -40,11 +43,14 @@ Install the project and its dependencies:
 uv sync
 ```
 
-Run the greeting:
+Run the greeting and regression plot:
 
 ```powershell
 uv run main.py
 ```
+
+The CSV must contain `Number` and `NextNumber` columns. The plot opens after
+the ASCII-art names are displayed.
 
 Inspect the available Python versions again and compare the result with the
 earlier command:
