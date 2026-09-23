@@ -50,11 +50,14 @@ uv run main.py
 ```
 
 The script first prints the ASCII-art names, then reads `counting-data.csv`.
-It treats `Number` as the input column and `NextNumber` as the output column,
-prints the fitted linear equation, and saves the chart to
-`linear-regression.png`. The regression calculation is done directly with
-pandas operations; scikit-learn is not required for this simple example. When
-run locally, the script also opens the chart in a plot window after saving it.
+It treats `Number` as the input column and `NextNumber` as the output column.
+The first half of the rows is used as training data and the second half as
+test data. The regression line is fitted only to the training rows and is
+drawn 100 x-axis units beyond both ends of the full dataset. The chart is
+saved to `linear-regression.png`, and the regression calculation is done
+directly with pandas operations; scikit-learn is not required for this simple
+example. When run locally, the script also opens the chart in a plot window
+after saving it.
 
 Inspect the available Python versions again and compare the result with the
 earlier command:

@@ -26,25 +26,46 @@ def create_regression_plot() -> None:
     if len(data) < 2:
         raise ValueError("The CSV must contain at least two valid numeric rows.")
 
-    x = data["Number"]
-    y = data["NextNumber"]
-    x_mean = x.mean()
-    y_mean = y.mean()
-    centered_x = x - x_mean
-    slope = (centered_x * (y - y_mean)).sum() / (centered_x**2).sum()
+    split_index = len(data) // 2
+    if split_index < 2 or len(data) - split_index < 1:
+        raise ValueError("The CSV must contain enough rows for training and test data.")
+
+    training_data = data.iloc[:split_index]
+    test_data = data.iloc[split_index:]
+    x_train = training_data["Number"]
+    y_train = training_data["NextNumber"]
+    x_mean = x_train.mean()
+    y_mean = y_train.mean()
+    centered_x = x_train - x_mean
+    denominator = (centered_x**2).sum()
+    if denominator == 0:
+        raise ValueError("Training data must contain more than one unique Number value.")
+
+    slope = (centered_x * (y_train - y_mean)).sum() / denominator
     intercept = y_mean - slope * x_mean
-    predictions = slope * x + intercept
 
     print(f"Linear regression: NextNumber = {slope:.4f} * Number + {intercept:.4f}")
 
     plt.figure(figsize=(8, 5))
-    plt.scatter(x, y, label="Observed data")
-    sorted_indices = x.argsort()
+    plt.scatter(
+        training_data["Number"],
+        training_data["NextNumber"],
+        label="Training data",
+        color="blue",
+    )
+    plt.scatter(
+        test_data["Number"],
+        test_data["NextNumber"],
+        label="Test data",
+        color="orange",
+    )
+    line_x = pd.Series([data["Number"].min() - 100, data["Number"].max() + 100])
+    line_y = slope * line_x + intercept
     plt.plot(
-        x.iloc[sorted_indices],
-        predictions.iloc[sorted_indices],
+        line_x,
+        line_y,
         color="red",
-        label="Linear regression",
+        label="Training regression line",
     )
     plt.xlabel("Number")
     plt.ylabel("NextNumber")
