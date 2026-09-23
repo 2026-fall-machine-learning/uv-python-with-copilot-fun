@@ -39,6 +39,23 @@ def plot_linear_regression() -> None:
     plt.scatter(x_train, y_train, label="Train")
     plt.scatter(x_test, y_test, label="Test")
     plt.plot(line_x, line_y, color="red", label=f"Fit (train): y = {m:.2f}x + {b:.2f}")
+
+    ax = plt.gca()
+    x_limits = ax.get_xlim()
+    y_limits = ax.get_ylim()
+    background = np.tile(np.linspace(0.96, 0.88, 256)[:, None], (1, 256))
+    ax.imshow(
+        background,
+        cmap="gray",
+        extent=[*x_limits, *y_limits],
+        aspect="auto",
+        origin="lower",
+        alpha=0.35,
+        zorder=0,
+    )
+    ax.set_xlim(x_limits)
+    ax.set_ylim(y_limits)
+    ax.set_axisbelow(True)
     plt.xlabel("Number")
     plt.ylabel("NextNumber")
     plt.title("Linear Regression: counting-data.csv (train/test split)")
