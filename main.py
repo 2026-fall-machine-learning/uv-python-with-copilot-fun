@@ -29,19 +29,50 @@ def load_data() -> tuple[np.ndarray, np.ndarray]:
     return np.asarray(xs, dtype=float), np.asarray(ys, dtype=float)
 
 
+def split_train_test(x_values: np.ndarray, y_values: np.ndarray, test_fraction: float = 0.2) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    rng = np.random.default_rng(42)
+    indices = np.arange(len(x_values))
+    rng.shuffle(indices)
+
+    test_size = max(1, int(round(len(x_values) * test_fraction)))
+    train_size = len(x_values) - test_size
+
+    train_indices = indices[:train_size]
+    test_indices = indices[train_size:]
+
+    return (
+        x_values[train_indices],
+        y_values[train_indices],
+        x_values[test_indices],
+        y_values[test_indices],
+    )
+
+
 def main() -> None:
     print_ascii_art()
 
     x_values, y_values = load_data()
-    slope, intercept = np.polyfit(x_values, y_values, 1)
-    prediction = slope * x_values + intercept
+    x_train, y_train, x_test, y_test = split_train_test(x_values, y_values)
 
-    figure, axis = plt.subplots(figsize=(8, 6))
-    axis.scatter(x_values, y_values, color="blue", label="Data points")
-    axis.plot(x_values, prediction, color="red", linewidth=2, label=f"Regression: y = {slope:.2f}x + {intercept:.2f}")
+    slope, intercept = np.polyfit(x_train, y_train, 1)
+    x_domain = np.linspace(x_values.min() - 100, x_values.max() + 100, 400)
+    y_domain = slope * x_domain + intercept
+
+    train_predictions = slope * x_train + intercept
+    test_predictions = slope * x_test + intercept
+    train_error = np.mean(np.abs(y_train - train_predictions))
+    test_error = np.mean(np.abs(y_test - test_predictions))
+
+    figure, axis = plt.subplots(figsize=(10, 6))
+    axis.scatter(x_train, y_train, color="blue", label=f"Training data ({len(x_train)})")
+    axis.scatter(x_test, y_test, color="orange", label=f"Test data ({len(x_test)})")
+    axis.plot(x_domain, y_domain, color="red", linewidth=2, label=f"Regression: y = {slope:.2f}x + {intercept:.2f}")
+
+    axis.set_xlim(x_values.min() - 120, x_values.max() + 120)
+    axis.set_ylim(min(y_values.min(), y_domain.min()) - 10, max(y_values.max(), y_domain.max()) + 10)
     axis.set_xlabel("Number")
     axis.set_ylabel("Next Number")
-    axis.set_title("Linear Regression of counting-data.csv")
+    axis.set_title("Linear Regression with Train/Test Split and Extended Range")
     axis.grid(True, linestyle="--", alpha=0.4)
     axis.legend()
 
@@ -49,6 +80,8 @@ def main() -> None:
     plt.tight_layout()
     plt.savefig(output_path, dpi=150)
     print(f"\nSaved regression plot to {output_path}")
+    print(f"Training mean absolute error: {train_error:.4f}")
+    print(f"Test mean absolute error: {test_error:.4f}")
     plt.close(figure)
 
 
